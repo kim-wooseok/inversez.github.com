@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko-kr">
+	<head>
+	    <meta charset="UTF-8">
+		<title>GOGO 알라딘</title>
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="../assets/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+		<style type="text/css">
+			.frame-root
+			{
+				width: 320px;
+				margin: 32px auto;
+			}
+			.stretch
+			{
+				width: 100%;
+			}
+			.small-margin
+			{
+				margin: 6px;
+			}
+			.delete
+			{
+				text-decoration: line-through;
+				color: gray;				
+			}
+			.gocenter {
+				margin: auto;
+				max-width: 640px;
+				border:1px solid #8AC007;
+ 			}
+		</style>
+
+		<script src="../assets/js/cookie.js"></script>
+		
+		<script type="text/javascript">
+			function initPage()
+			{
+				var keyword = Cookie.get("keyword");
+				if (keyword < 1)
+				{
+					keyword = "검색어";
+					Cookie.set("keyword", keyword);
+				}
+				
+				document.getElementById("keyword").value = keyword;
+				updateAladin();
+			}
+			
+			function setKeyword()
+			{
+				var keyword = document.getElementById("keyword").value;
+				
+				Cookie.set("keyword", keyword,
+					{expires_day : 31}
+				);				
+								
+				showKeywordChangeMessage(keyword);
+				updateAladin();
+			}			
+			
+			function updateAladin()
+			{
+				var aladin = document.getElementById("aladin");
+				while (aladin.firstChild)
+				{
+					aladin.removeChild(aladin.firstChild);
+				}
+				
+				var keyword = document.cookie;
+				var codes = ["gangnam", "bundang", "sillim", "sinchon", "sincheon", "jongno", "geondae", "daehakro", "bucheon", "nowon"];
+				var names = ["강남", "분당", "신림", "신촌", "잠실 신천", "종로", "건대", "대학로", "부천", "노원"];
+				for(var i in codes)
+				{
+					var url = makeUrl(keyword, codes[i]);
+				
+					var newButton = document.createElement("a");
+					newButton.setAttribute("class", "btn btn-default btn-large small-margin");
+					//newButton.setAttribute("href", url);
+					newButton.setAttribute("id", codes[i]);
+					newButton.innerText = names[i];
+					newButton.onclick = function() {onClickAladin(event)};
+					aladin.appendChild(newButton);
+				}
+			}
+			
+			function makeUrl(keyword, code)
+			{
+				var url = "http://www.aladin.co.kr/m/msearch.aspx?IsUsedStore=true&SearchTarget=Used&SearchWord=" + encodeURIComponent(keyword) + "&offcode=" + code;
+				return url;
+			}
+
+			function onClickAladin(e)
+			{
+				var keyword = document.getElementById("keyword").value;
+				var url = makeUrl(keyword, e.srcElement.id);
+				//window.open(url);
+				var subpage = document.getElementById("subpage");
+				subpage.src = url;
+			}
+			
+			function showKeywordChangeMessage(keyword)
+			{
+				var box = document.getElementById("messageBox");
+				var text = document.createElement("p");
+				text.setAttribute("class", "alert alert-success small-margin");
+				text.setAttribute("role", "alert");
+				
+				text.innerText = "키워드가 '" + keyword + "'로 변경되었습니다.";
+				
+				box.appendChild(text);
+				setTimeout(function(){ box.removeChild(text); }, 2000);
+			}			
+			
+			function checkKey(e)
+			{
+				if (13 == e.keyCode)
+				{
+					setKeyword();
+					return false;
+				}
+				return true;
+			}
+		</script>
+	</head>
+	<body onload="initPage()">
+		<div id="root" class="frame-root">
+			<p class="btn btn-large btn-block btn-primary">알라딘</p>
+
+			<div id="books">
+				<p class="small-margin"></p>
+				<div class="input-group">
+					<input type="text" class="form-control text-center" id="keyword" onkeypress="return checkKey(event)"/>
+					<div class="input-group-btn">
+						<p class="btn btn-default" onclick="setKeyword()">확인</p>
+					</div>
+				</div>
+				<div id="messageBox">
+				</div>
+				<p class="small-margin"></p>
+				<div id="aladin">
+				</div>
+			</div>			
+		</div>
+		<div class="gocenter">
+			<iframe id="subpage" class="stretch" src="" height="480" align="center" frameborder="0"></iframe>
+		</div>		
+	</body>
+</html>
